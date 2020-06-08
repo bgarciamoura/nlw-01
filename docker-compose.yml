@@ -1,0 +1,66 @@
+version: "3.8"
+volumes:
+  dados:
+networks:
+  backend:
+  frontend:
+  db:
+services:
+  database:
+    container_name: ecoleta-database
+    build: ./server/src/database
+    networks: 
+      - db
+    ports: 
+      - "3306:3306"
+  phpmyadmin:
+    container_name: ecoleta-phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    links:
+      - database
+    ports:
+      - 80:80
+    environment:
+      - PMA_ARBITRARY=1
+    depends_on: 
+      - database
+    networks: 
+      - db
+  server:
+    container_name: ecoleta-server
+    build: ./server
+    ports: 
+      - "3333:3333"
+      # - "8181:8181"
+    networks:
+      - backend
+      - db
+    depends_on: 
+      - database
+    links:
+      - database
+    # volumes: 
+    #   - ./server:/app
+    # command: npm run dev
+    # user: "node"
+    # working_dir: /home/node/app
+    # environment:
+    #   - NODE_ENV=production
+    #   - NPM_CONFIG_PREFIX=/home/node/.npm-global
+    # command: bash -c "npm install express
+    #                   && npm install @types/express -D
+    #                   && npm install ts-node -D
+    #                   && npm install typescript -D
+    #                   && npm link typescript
+    #                   && npx ts-node src/server.ts"
+  web:
+    container_name: ecoleta-web
+    build: ./ecoleta-web
+    volumes: 
+      - ./ecoleta-web:/app/ecoleta
+      - '/app/node_modules'
+    ports: 
+      - "8080:3000"
+    networks: 
+      - frontend
+    stdin_open: true

@@ -1,0 +1,5 @@
+# dependencies
+ecoleta-web/node_modules
+mobile/node_modules
+server/node_modules
+.vscode
